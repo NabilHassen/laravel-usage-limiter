@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use NabilHassen\LaravelUsageLimiter\Contracts\Limit as LimitContract;
+use NabilHassen\LaravelUsageLimiter\Enum\FrequencyEnum;
 use NabilHassen\LaravelUsageLimiter\Exceptions\InvalidLimitResetFrequencyValue;
 use NabilHassen\LaravelUsageLimiter\Exceptions\LimitAlreadyExists;
 use NabilHassen\LaravelUsageLimiter\Exceptions\LimitDoesNotExist;
@@ -20,17 +21,8 @@ class Limit extends Model implements LimitContract
 
     protected $guarded = ['id', 'created_at', 'updated_at', 'deleted_at'];
 
-    protected static array $resetFrequencyPossibleValues = [
-        'every second',
-        'every minute',
-        'every hour',
-        'every day',
-        'every week',
-        'every two weeks',
-        'every month',
-        'every quarter',
-        'every six months',
-        'every year',
+    protected $casts = [
+        'reset_frequency' => FrequencyEnum::class,
     ];
 
     public function __construct(array $attributes = [])
@@ -75,7 +67,7 @@ class Limit extends Model implements LimitContract
         if (
             Arr::has($data, ['reset_frequency']) &&
             filled($data['reset_frequency']) &&
-            array_search($data['reset_frequency'], static::$resetFrequencyPossibleValues) === false
+            !in_array($data['reset_frequency'], FrequencyEnum::toArray())
         ) {
             throw new InvalidLimitResetFrequencyValue;
         }
@@ -141,6 +133,6 @@ class Limit extends Model implements LimitContract
 
     public function getResetFrequencyOptions(): Collection
     {
-        return collect(static::$resetFrequencyPossibleValues);
+        return collect(FrequencyEnum::toArray());
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use NabilHassen\LaravelUsageLimiter\Contracts\Limit;
+use NabilHassen\LaravelUsageLimiter\Enum\FrequencyEnum;
 use NabilHassen\LaravelUsageLimiter\Exceptions\InvalidLimitResetFrequencyValue;
 use NabilHassen\LaravelUsageLimiter\LimitManager;
 use NabilHassen\LaravelUsageLimiter\Tests\TestCase;
@@ -112,7 +113,9 @@ class LimitManagerTest extends TestCase
 
     public function test_get_next_reset_returns_carbon_date(): void
     {
-        $date = $this->limitManagerClass->getNextReset(app(Limit::class)->getResetFrequencyOptions()->random(), now());
+        $limit_frequency = FrequencyEnum::from(app(Limit::class)->getResetFrequencyOptions()->random());
+
+        $date = $this->limitManagerClass->getNextReset($limit_frequency, now());
 
         $this->assertInstanceOf(Carbon::class, $date);
     }

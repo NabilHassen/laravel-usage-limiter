@@ -90,19 +90,19 @@ $projectsStandardLimit->incrementBy(10);
 $projectsProLimit->decrementBy(3);
 ```
 
-###### Possible values for "reset_frequency" column
+###### Possible values for "reset_frequency" column came from src/Enum/FrequencyEnum.php
 
 - null
-- "every second" // works in Laravel >= 10
-- "every minute"
-- "every hour"
-- "every day"
-- "every week",
-- "every two weeks",
-- "every month",
-- "every quarter",
-- "every six months",
-- "every year"
+- EVERY_SECOND = 'every second' // works in laravel >= 10.x
+- EVERY_MINUTE = 'every minute'
+- EVERY_HOUR  = 'every hour'
+- EVERY_DAY  = 'every day'
+- EVERY_WEEK  = 'every week'
+- EVERY_TWO_WEEKS  = 'every two weeks'
+- EVERY_MONTH  = 'every month'
+- EVERY_QUARTER  = 'every quarter'
+- EVERY_SIX_MONTHS  = 'every six months'
+- EVERY_YEAR  = 'every year'
 
 #### Set Limits on models
 

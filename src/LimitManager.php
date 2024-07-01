@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use InvalidArgumentException;
 use NabilHassen\LaravelUsageLimiter\Contracts\Limit;
+use NabilHassen\LaravelUsageLimiter\Enum\FrequencyEnum;
 use NabilHassen\LaravelUsageLimiter\Exceptions\InvalidLimitResetFrequencyValue;
 
 class LimitManager
@@ -52,26 +53,20 @@ class LimitManager
         $this->cache = Cache::store($cacheStore);
     }
 
-    public function getNextReset(string $limitResetFrequency, string|Carbon $lastReset): Carbon
+    public function getNextReset(string|FrequencyEnum $limitResetFrequency, string|Carbon $lastReset): Carbon
     {
-        if ($this->limitClass->getResetFrequencyOptions()->doesntContain($limitResetFrequency)) {
+        if(!$limitResetFrequency instanceof FrequencyEnum) {
+            if(!$limitResetFrequency = FrequencyEnum::tryFrom($limitResetFrequency)){
+                throw new InvalidLimitResetFrequencyValue;
+            }
+        }
+
+        if ($this->limitClass->getResetFrequencyOptions()->doesntContain($limitResetFrequency->value)) {
             throw new InvalidLimitResetFrequencyValue;
         }
 
-        $lastReset = Carbon::parse($lastReset);
+        return $limitResetFrequency->getCarbonEquivalent($lastReset);
 
-        return match ($limitResetFrequency) {
-            'every second' => $lastReset->addSecond(),
-            'every minute' => $lastReset->addMinute(),
-            'every hour' => $lastReset->addHour(),
-            'every day' => $lastReset->addDay(),
-            'every week' => $lastReset->addWeek(),
-            'every two weeks' => $lastReset->addWeeks(2),
-            'every month' => $lastReset->addMonth(),
-            'every quarter' => $lastReset->addQuarter(),
-            'every six months' => $lastReset->addMonths(6),
-            'every year' => $lastReset->addYear(),
-        };
     }
 
     public function loadLimits(): void
